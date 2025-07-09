@@ -24,3 +24,8 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-remote-theme # add this line to the plugins list if you already have one
+
+header_pages:
+  - about.md
+  - blog/index.md
+  - contact.md
