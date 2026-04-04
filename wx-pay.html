@@ -305,6 +305,8 @@
 
     <script>
       const API_BASE_URL = "https://cs.qdniu.cn";
+      const WECHAT_APP_ID = "wxab1bc54ff804b2b1";
+      const WECHAT_OAUTH_SCOPE = "snsapi_base";
 
       const state = {
         loginCode: "",
@@ -512,14 +514,23 @@
         });
       }
 
-      function buildAuthorizeUrl(loginCode) {
-        const returnUrl = window.location.origin + window.location.pathname;
-        const url = new URL(
-          API_BASE_URL + "/api/client/payment/jsapi/authorize",
+      function buildWechatAuthorizeUrl(loginCode) {
+        const redirectUrl = new URL(window.location.href);
+        redirectUrl.searchParams.set("loginCode", loginCode);
+        redirectUrl.searchParams.delete("code");
+        redirectUrl.searchParams.delete("state");
+        redirectUrl.searchParams.delete("error");
+
+        const authorizeUrl = new URL(
+          "https://open.weixin.qq.com/connect/oauth2/authorize",
         );
-        url.searchParams.set("loginCode", loginCode);
-        url.searchParams.set("returnUrl", returnUrl);
-        return url.toString();
+        authorizeUrl.searchParams.set("appid", WECHAT_APP_ID);
+        authorizeUrl.searchParams.set("redirect_uri", redirectUrl.toString());
+        authorizeUrl.searchParams.set("response_type", "code");
+        authorizeUrl.searchParams.set("scope", WECHAT_OAUTH_SCOPE);
+        authorizeUrl.searchParams.set("state", loginCode.slice(0, 32));
+
+        return authorizeUrl.toString() + "#wechat_redirect";
       }
 
       function updateUrlWithoutTransientParams() {
@@ -570,7 +581,7 @@
         if (!authCode && !state.openid) {
           state.status = "authorizing";
           setMessage("正在获取微信支付授权...", "");
-          window.location.href = buildAuthorizeUrl(state.loginCode);
+          window.location.href = buildWechatAuthorizeUrl(state.loginCode);
           return;
         }
 
