@@ -466,6 +466,7 @@
           clearPollTimer();
           setMessage("支付成功，会员已开通", "success-state");
           render();
+          setTimeout(function(){window.location.href="https://cs.qdniu.cn/client"}, 1000);
         }
 
         return result;
@@ -619,6 +620,7 @@
             setMessage("当前账号已开通会员，无需重复支付", "success-state");
             updateUrlWithoutTransientParams();
             render();
+            setTimeout(function(){window.location.href="https://cs.qdniu.cn/client"}, 1000);
             return;
           }
 
