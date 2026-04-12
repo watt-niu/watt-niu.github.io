@@ -305,9 +305,6 @@
 
     <script>
       const API_BASE_URL = "https://cs.qdniu.cn";
-      const WECHAT_APP_ID = "wxab1bc54ff804b2b1";
-      const WECHAT_OAUTH_SCOPE = "snsapi_base";
-
       const state = {
         loginCode: "",
         paymentInfo: null,
@@ -466,7 +463,9 @@
           clearPollTimer();
           setMessage("支付成功，会员已开通", "success-state");
           render();
-          setTimeout(function(){window.location.href="https://cs.qdniu.cn/client"}, 1000);
+          setTimeout(function () {
+            window.location.href = "https://cs.qdniu.cn/client";
+          }, 1000);
         }
 
         return result;
@@ -521,17 +520,12 @@
         redirectUrl.searchParams.delete("code");
         redirectUrl.searchParams.delete("state");
         redirectUrl.searchParams.delete("error");
-
         const authorizeUrl = new URL(
-          "https://open.weixin.qq.com/connect/oauth2/authorize",
+          API_BASE_URL + "/api/client/payment/jsapi/authorize",
         );
-        authorizeUrl.searchParams.set("appid", WECHAT_APP_ID);
-        authorizeUrl.searchParams.set("redirect_uri", redirectUrl.toString());
-        authorizeUrl.searchParams.set("response_type", "code");
-        authorizeUrl.searchParams.set("scope", WECHAT_OAUTH_SCOPE);
-        authorizeUrl.searchParams.set("state", loginCode.slice(0, 32));
-
-        return authorizeUrl.toString() + "#wechat_redirect";
+        authorizeUrl.searchParams.set("loginCode", loginCode);
+        authorizeUrl.searchParams.set("returnUrl", redirectUrl.toString());
+        return authorizeUrl.toString();
       }
 
       function updateUrlWithoutTransientParams() {
@@ -578,6 +572,7 @@
 
         const params = getSearchParams();
         const authCode = params.get("code") || "";
+        const merchantSlot = params.get("merchantSlot") || "";
 
         if (!authCode && !state.openid) {
           state.status = "authorizing";
@@ -605,6 +600,7 @@
                 loginCode: state.loginCode,
                 code: authCode || undefined,
                 openid: state.openid || undefined,
+                merchantSlot: merchantSlot || undefined,
               }),
             },
           );
@@ -620,7 +616,9 @@
             setMessage("当前账号已开通会员，无需重复支付", "success-state");
             updateUrlWithoutTransientParams();
             render();
-            setTimeout(function(){window.location.href="https://cs.qdniu.cn/client"}, 1000);
+            setTimeout(function () {
+              window.location.href = "https://cs.qdniu.cn/client";
+            }, 1000);
             return;
           }
 
